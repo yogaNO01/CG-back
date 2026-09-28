@@ -11,6 +11,7 @@ export class InquiriesService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(input: CreateInquiry) {
+    if (!/^1[3-9]\d{9}$/.test(input.contactPhone.trim())) throw new BadRequestException('请输入有效的中国大陆手机号');
     const merchant = await this.prisma.merchant.findFirst({
       where: { id: input.companyId, status: 'ENABLED', certificationStatus: 'APPROVED' },
     });

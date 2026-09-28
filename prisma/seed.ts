@@ -151,7 +151,7 @@ async function main() {
       const spuCode = `QCY-${String(index + 1).padStart(2, '0')}-${String(productIndex + 1).padStart(3, '0')}`;
       const productImage = `/images/products/${spuCode}.png`;
       const technicalParameters = [{ parameterId: 'model', name: '产品型号', value: model, unit: '', group: '基础参数' }, { parameterId: 'parameter_1', name: parameters[0], value: parameters[1], unit: '', group: '技术参数' }, { parameterId: 'parameter_2', name: parameters[2], value: parameters[3], unit: '', group: '技术参数' }];
-      const productData = { merchantId: merchant.id, categoryId: productCategory.id, spuCode, name: productName, brand: shortName, model, manufacturer: companyName, originPlace: `${province}${city}`, shortDescription, detailContent: `<p>${shortDescription}</p><p>${productName}采用 ${parameters[0]} ${parameters[1]}、${parameters[2]} ${parameters[3]} 的配置，采购前可根据现场工况确认规格与交期。</p>`, mainImage: productImage, imageUrls: [productImage], videoUrls: [], marketingBadge: productIndex === 0 ? 'source_supply' : 'hot_sale', sellingPoints: [model, `${parameters[0]} ${parameters[1]}`, `${parameters[2]} ${parameters[3]}`], supplyMethods: ['spot', 'custom'], applicationScenarios: [categoryName, `${province}${city}发货`, '工程配套'], serviceGuarantees: ['platform_verified', 'customization', 'fast_shipping'], afterSalesService: `${productName}提供选型确认、到货验收咨询及对应型号的售后技术支持。`, technicalParameters, featureTags: ['selection_support', `model_${model.toLowerCase()}`], customizationEnabled: true, inquiryEnabled: true, unit, shipWithinHours: productIndex === 0 ? 24 : 48, searchKeywords: [shortName, model, categoryName, ...company.keywords], sortOrder: 1000 - index * 10 - productIndex, salesCount: 28 + index * 17 + productIndex * 9, viewCount: BigInt(1200 + index * 310 + productIndex * 78), minOrderQuantity: unit === '米' || unit === '千克' ? 100 : 1, status: 'ON_SHELF' as const, publishedAt: new Date('2026-09-01T09:00:00+08:00') };
+      const productData = { merchantId: merchant.id, categoryId: productCategory.id, spuCode, name: productName, brand: shortName, model, manufacturer: companyName, originPlace: `${province}${city}`, shortDescription, detailContent: `<p>${shortDescription}</p><p>${productName}采用 ${parameters[0]} ${parameters[1]}、${parameters[2]} ${parameters[3]} 的配置，采购前可根据现场工况确认规格与交期。</p>`, mainImage: productImage, imageUrls: [productImage], videoUrls: [], marketingBadge: productIndex === 0 ? 'source_supply' : 'hot_sale', sellingPoints: [model, `${parameters[0]} ${parameters[1]}`, `${parameters[2]} ${parameters[3]}`], supplyMethods: ['spot', 'custom'], applicationScenarios: [categoryName, `${province}${city}发货`, '工程配套'], serviceGuarantees: ['platform_verified', 'customization', 'fast_shipping'], afterSalesService: `${productName}提供选型确认、到货验收咨询及对应型号的售后技术支持。`, technicalParameters, featureTags: ['selection_support'], customizationEnabled: true, inquiryEnabled: true, unit, shipWithinHours: productIndex === 0 ? 24 : 48, searchKeywords: [shortName, model, categoryName, ...company.keywords], sortOrder: 1000 - index * 10 - productIndex, salesCount: 28 + index * 17 + productIndex * 9, viewCount: BigInt(1200 + index * 310 + productIndex * 78), minOrderQuantity: unit === '米' || unit === '千克' ? 100 : 1, status: 'ON_SHELF' as const, publishedAt: new Date('2026-09-01T09:00:00+08:00') };
       const product = await prisma.product.upsert({
         where: { spuCode },
         update: productData,
@@ -167,5 +167,19 @@ async function main() {
       await prisma.productImage.create({ data: { productId: product.id, url: productImage, type: 'MAIN', sortOrder: 0 } });
     }
   }
+  const newsTitles = [
+    '制造企业采购如何建立合格供应商清单', '工业品询价前需要确认的六项参数', '供应链韧性：从单一货源到多源协同', '设备更新周期中的采购成本评估方法',
+    '工程项目采购：交期与验收条款的协同管理', '制造业库存优化的实用分级方法', '工业材料采购中的质量证明文件要点', '中小工厂如何规范化采购需求描述',
+    '批量采购谈判：阶梯价与年度框架协议', '设备备件采购如何降低停线风险', '绿色制造背景下的供应链选型趋势', '工业采购数字化的第一步：数据标准化'
+  ];
+  const newsCoverImages = [
+    '/images/news/supplier-qualification.png',
+    '/images/news/rfq-technical-parameters.png',
+    '/images/news/supply-chain-resilience.png',
+  ];
+  for (const [index, title] of newsTitles.entries()) await prisma.newsArticle.upsert({
+    where: { id: `seed-news-${index + 1}` }, update: { title, summary: `${title}，本文从工业采购的实际协作场景出发，梳理可执行的准备事项与风险控制要点。`, content: `<h1>${title}</h1><p>工业采购需要在质量、交付、成本和服务之间取得平衡。本文结合制造业常见场景，说明采购团队在需求确认、供应商沟通与验收留档中应关注的关键事项。</p><h2>采购建议</h2><p>建议将技术规格、数量、交期、验收标准和售后需求形成书面清单，并保留询价与沟通记录，以提升跨部门协作效率。</p>`, coverImage: newsCoverImages[index % newsCoverImages.length], publishedAt: new Date(Date.now() - index * 86400000), status: 'PUBLISHED' },
+    create: { id: `seed-news-${index + 1}`, title, summary: `${title}，本文从工业采购的实际协作场景出发，梳理可执行的准备事项与风险控制要点。`, content: `<h1>${title}</h1><p>工业采购需要在质量、交付、成本和服务之间取得平衡。本文结合制造业常见场景，说明采购团队在需求确认、供应商沟通与验收留档中应关注的关键事项。</p><h2>采购建议</h2><p>建议将技术规格、数量、交期、验收标准和售后需求形成书面清单，并保留询价与沟通记录，以提升跨部门协作效率。</p>`, coverImage: newsCoverImages[index % newsCoverImages.length], publishedAt: new Date(Date.now() - index * 86400000), status: 'PUBLISHED' }
+  });
 }
 main().finally(()=>prisma.$disconnect());
